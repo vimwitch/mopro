@@ -2,12 +2,13 @@ use std::fs;
 use std::path::Path;
 use std::process::Command;
 
+use crate::app_config::install_ndk;
+
 use super::{install_arch, mktemp_local};
 
 pub const MOPRO_KOTLIN: &str = include_str!("../../KotlinBindings/uniffi/mopro/mopro.kt");
 
 pub fn build() {
-    println!("Building Android bindings");
     let cwd = std::env::current_dir().unwrap();
     let manifest_dir =
         std::env::var("CARGO_MANIFEST_DIR").unwrap_or(cwd.to_str().unwrap().to_string());
@@ -38,8 +39,8 @@ pub fn build() {
         mode = "debug";
     }
 
+    install_ndk();
     for arch in target_archs {
-        println!("Building for {}", arch);
         install_arch(arch.to_string());
         let mut build_cmd = Command::new("cargo");
         build_cmd.arg("ndk").arg("-t").arg(arch);
@@ -76,7 +77,6 @@ pub fn build() {
             "{}/{}/{}/libmopro_bindings.so",
             build_dir, arch, mode
         )));
-        println!("{:?}", out_lib_path);
 
         if !bindings_dest.exists() {
             fs::create_dir_all(&bindings_out).expect("Failed to create directory");

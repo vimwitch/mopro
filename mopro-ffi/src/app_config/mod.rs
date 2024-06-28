@@ -3,8 +3,8 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use uuid::Uuid;
 
-pub mod ios;
 pub mod android;
+pub mod ios;
 
 pub fn mktemp() -> PathBuf {
     let dir = std::env::temp_dir().join(Path::new(&Uuid::new_v4().to_string()));
@@ -35,6 +35,16 @@ pub fn cleanup_tmp_local(build_path: &Path) {
 }
 
 pub const UDL: &str = include_str!("../mopro.udl");
+
+pub fn install_ndk() {
+    Command::new("cargo")
+        .arg("install")
+        .arg("cargo-ndk")
+        .spawn()
+        .expect("Failed to spawn cargo, is it installed?")
+        .wait()
+        .expect("Failed to install cargo-ndk");
+}
 
 pub fn install_arch(arch: String) {
     Command::new("rustup")
