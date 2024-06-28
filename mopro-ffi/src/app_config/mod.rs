@@ -4,6 +4,7 @@ use std::process::Command;
 use uuid::Uuid;
 
 pub mod ios;
+pub mod android;
 
 pub fn mktemp() -> PathBuf {
     let dir = std::env::temp_dir().join(Path::new(&Uuid::new_v4().to_string()));
