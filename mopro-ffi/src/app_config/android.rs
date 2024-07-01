@@ -2,9 +2,7 @@ use std::fs;
 use std::path::Path;
 use std::process::Command;
 
-use crate::app_config::install_ndk;
-
-use super::{install_arch, mktemp_local};
+use super::{cleanup_tmp_local, install_arch, install_ndk, mktemp_local};
 
 pub const MOPRO_KOTLIN: &str = include_str!("../../KotlinBindings/uniffi/mopro/mopro.kt");
 
@@ -73,55 +71,34 @@ pub fn build() {
             }
             _ => panic!("Unknown target architecture"),
         }
-        let out_lib_path = Path::new(&build_dir).join(Path::new(&format!(
+        let out_lib_path = Path::new(&build_dir).join(format!(
             "{}/{}/{}/libmopro_bindings.so",
             build_dir, arch, mode
-        )));
+        ));
 
-        if !bindings_dest.exists() {
-            fs::create_dir_all(&bindings_out).expect("Failed to create directory");
-        }
-        if !bindings_dest.join(Path::new("jniLibs")).exists() {
-            fs::create_dir_all(bindings_out.join(Path::new("jniLibs")))
-                .expect("Failed to create directory");
-        }
-        if !bindings_dest
-            .join(Path::new("jniLibs"))
-            .join(Path::new(&folder))
-            .exists()
-        {
-            fs::create_dir_all(
-                bindings_dest
-                    .join(Path::new("jniLibs"))
-                    .join(Path::new(&folder)),
-            )
-            .expect("Failed to create directory");
-        }
-        let out_lib_dest = bindings_dest.join(Path::new(&format!(
-            "jniLibs/{}/libmopro_bindings.so",
-            folder
-        )));
+        let out_lib_dest = bindings_out.join(format!("jniLibs/{}/libmopro_bindings.so", folder));
+
+        // Create necessary directories and copy the library
+        fs::create_dir_all(out_lib_dest.parent().unwrap())
+            .expect("Failed to create jniLibs directory");
         fs::copy(&out_lib_path, &out_lib_dest).expect("Failed to copy file");
-
-        if !bindings_dest
-            .join(Path::new("uniffi"))
-            .join(Path::new("mopro"))
-            .exists()
-        {
-            fs::create_dir_all(
-                &bindings_dest
-                    .join(Path::new("uniffi"))
-                    .join(Path::new("mopro")),
-            )
-            .expect("Failed to create directory");
-        }
-        fs::write(
-            bindings_dest
-                .join(Path::new("uniffi"))
-                .join(Path::new("mopro"))
-                .join("mopro.kt"),
-            MOPRO_KOTLIN,
-        )
-        .expect("Failed to write mopro.swift");
     }
+
+    fs::create_dir_all(&bindings_out.join("uniffi").join("mopro"))
+        .expect("Failed to create directory");
+
+    fs::write(
+        bindings_out.join("uniffi").join("mopro").join("mopro.kt"),
+        MOPRO_KOTLIN,
+    )
+    .expect("Failed to write mopro.kt");
+
+    if let Ok(info) = fs::metadata(&bindings_dest) {
+        if !info.is_dir() {
+            panic!("bindings directory exists and is not a directory");
+        }
+        fs::remove_dir_all(&bindings_dest).expect("Failed to remove bindings directory");
+    }
+    fs::rename(&bindings_out, &bindings_dest).expect("Failed to move bindings into place");
+    cleanup_tmp_local(&build_dir_path)
 }
