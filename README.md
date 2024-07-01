@@ -93,7 +93,7 @@ rust_witness::witness!(multiplier3);
 
 // Here we're calling a macro exported by uniffi. This macro will
 // write some functions and bind them to the uniffi UDL file. These
-// functions will invoke the circuit_data function written below.
+// functions will invoke the zkey_witness_map function written below.
 app!();
 
 // This function defines a mapping between zkey filename and witness
@@ -101,9 +101,9 @@ app!();
 // this function in order to retrieve the appropriate witness generator.
 // Remember, we built the witness generator for the circuit above using
 // rust_witness.
-fn circuit_data(name: &str) -> Result<WtnsFn, MoproError> {
+fn zkey_witness_map(name: &str) -> Result<WtnsFn, MoproError> {
     match name {
-        "multiplier3_final" => Ok(multiplier3_witness),
+        "multiplier3_final.zkey" => Ok(multiplier3_witness),
         _ => Err(MoproError::CircomError("Unknown circuit name".to_string())),
     }
 }
