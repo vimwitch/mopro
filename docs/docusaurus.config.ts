@@ -25,11 +25,6 @@ const config: Config = {
           editUrl:
             'https://github.com/zkmopro/mopro/tree/main/docs',
         },
-        blog: {
-          showReadingTime: true,
-          editUrl:
-            'https://github.com/zkmopro/mopro/tree/main/docs',
-        },
         theme: {
           customCss: './src/css/custom.css',
         },
@@ -52,7 +47,7 @@ const config: Config = {
       logo: {
         alt: 'Mopro Logo',
         src: '/img/logo_title.svg',
-        width: '325',
+        width: '125',
         height: '80',
       },
       items: [
@@ -62,7 +57,6 @@ const config: Config = {
           position: 'right',
           label: 'Docs',
         },
-        { to: '/blog', label: 'Blog', position: 'right' },
         {
           type: 'html',
           position: 'right',
@@ -86,10 +80,6 @@ const config: Config = {
                     <a href="https://github.com/zkmopro/mopro" target="_blank" class="footer__link-item">Github</a>
                     <img src="/img/link_arrow.svg"/>
                   </div>`
-            },
-            {
-              label: 'Blog',
-              to: '/blog',
             },
             {
               label: 'Documentation',
